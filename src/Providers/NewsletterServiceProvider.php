@@ -1,6 +1,6 @@
 <?php
 
-namespace MyVendor\Newsletter\Providers;
+namespace KadirGulec\Newsletter\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
