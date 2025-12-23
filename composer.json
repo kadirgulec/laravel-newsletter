@@ -1,17 +1,17 @@
 {
-  "name": "aks/newsletter",
+  "name": "kadirgulec/newsletter",
   "description": "A robust newsletter package for Laravel",
   "type": "library",
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "aks\\Newsletter\\": "src/"
+      "kadirgulec\\Newsletter\\": "src/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "aks\\Newsletter\\Providers\\NewsletterServiceProvider"
+        "kadirgulec\\Newsletter\\Providers\\NewsletterServiceProvider"
       ]
     }
   },
