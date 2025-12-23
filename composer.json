@@ -1,0 +1,21 @@
+{
+  "name": "aks/newsletter",
+  "description": "A robust newsletter package for Laravel",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "aks\\Newsletter\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "aks\\Newsletter\\Providers\\NewsletterServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "illuminate/support": "^10.0|^11.0"
+  }
+}
