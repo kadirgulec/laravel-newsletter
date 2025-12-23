@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('newsletter_subscribers', function(Blueprint $table) {
+        Schema::create('newsletter_subscribers', function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
             $table->timestamp('subscribed_at')->nullable();
@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('unsubscribe_reason')->nullable();
             $table->softDeletes();
             $table->timestamps();
+        });
     }
 
     public function down()
