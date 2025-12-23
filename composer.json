@@ -5,13 +5,13 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "kadirgulec\\Newsletter\\": "src/"
+      "KadirGulec\\Newsletter\\": "src/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "kadirgulec\\Newsletter\\Providers\\NewsletterServiceProvider"
+        "KadirGulec\\Newsletter\\Providers\\NewsletterServiceProvider"
       ]
     }
   },
