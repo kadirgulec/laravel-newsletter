@@ -26,6 +26,6 @@ class Subscriber extends Model
 
     public function scopeActive($query)
     {
-        return $query->whereNotNull('subscribed_at')->whereNull ('unsubscribed_at')->get();
+        return $query->whereNotNull('subscribed_at')->whereNull ('unsubscribed_at');
     }
 }

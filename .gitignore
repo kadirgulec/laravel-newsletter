@@ -1,0 +1,11 @@
+/vendor/
+/composer.lock
+/.idea/
+/.phpunit.result.cache
+/phpunit.xml
+/feedback.md
+.php-cs-fixer.cache
+.phpunit.cache/
+.env
+.env.testing
+*.sqlite

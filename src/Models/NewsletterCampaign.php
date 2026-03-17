@@ -32,12 +32,11 @@ class NewsletterCampaign extends Model
                                     $this->content
                             )
                     );
-
-            $this->update([
-                'status' => 'sent',
-                'sent_at' => now(),
-            ]);
-
         }
+        $this->update([
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+
     }
 }

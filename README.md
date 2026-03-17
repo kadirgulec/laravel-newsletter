@@ -88,9 +88,19 @@ The package creates a table named `newsletter_subscribers`.
 | :--- | :--- | :--- |
 | `id` | BigInt | Primary Key |
 | `email` | String | Unique email address |
-| `is_subscribed` | Boolean | `1` = Active, `0` = Unsubscribed |
+| `is_subscribed` | Boolean | `true` = Active, `false` = Unsubscribed |
 | `unsubscribed_at` | Timestamp | Nullable. Date when user unsubscribed |
 | `created_at` | Timestamp | Subscription date |
+
+The package also creates a table named `newsletter_campaigns`.
+
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | BigInt | Primary Key |
+| `subject` | String | The email subject |
+| `content` | LongText | The HTML content of the email |
+| `status` | String | `draft` or `sent` |
+| `sent_at` | Timestamp | Nullable. Date when the campaign was sent |
 
 ---
 
@@ -123,6 +133,30 @@ If you need to add relationships (e.g., linking a subscriber to a `User`), you c
 
 **Error: 403 Invalid Signature on Unsubscribe.**
 *   This happens if the URL is modified. Ensure your `APP_URL` in `.env` is set correctly (e.g., `http://localhost:8000` or `https://yourdomain.com`). Signed routes use the `APP_URL` to generate the signature.
+
+---
+
+## Testing
+
+The package includes a comprehensive test suite using PHPUnit and Orchestra Testbench.
+
+### Running Tests
+
+1. Install development dependencies:
+```bash
+    composer install
+```
+
+2. Run the tests:
+```bash
+    vendor/bin/phpunit
+```
+
+The tests cover:
+- **Subscriber Model:** Active/Inactive scoping.
+- **Newsletter Controller:** Subscription process and welcome email delivery.
+- **Unsubscription:** Secure signed URL validation and status updates.
+- **Campaigns:** Correct batch queueing to active subscribers only.
 
 ---
 

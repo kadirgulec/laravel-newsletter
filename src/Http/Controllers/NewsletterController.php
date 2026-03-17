@@ -26,14 +26,12 @@ class NewsletterController extends Controller
     }
 
     // 2. Unsubscribe (Signed Route)
-    public function unsubscribe(Request $request, $id)
+    public function unsubscribe(Request $request, Subscriber $subscriber)
     {
         // Verify the signature
         if (! $request->hasValidSignature()) {
             abort(403, 'Invalid or expired unsubscribe link.');
         }
-
-        $subscriber = Subscriber::findOrFail($id);
 
         $subscriber->update([
             'is_subscribed' => false,
