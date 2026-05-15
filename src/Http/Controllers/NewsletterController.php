@@ -13,28 +13,36 @@ class NewsletterController extends Controller
     public function subscribe(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:newsletter_subscribers,email'
+            'email' => 'required|email',
         ]);
 
-        $subscriber = Subscriber::create([
-            'email' => $request->email
-        ]);
+        $subscriber = Subscriber::firstOrNew(['email' => $request->email]);
 
-         Mail::to($subscriber->email)->send(new NewsletterMail($subscriber, 'Welcome!', 'Thanks for subscribing.'));
+        if ($subscriber->exists && $subscriber->subscribed_at && ! $subscriber->unsubscribed_at) {
+            return back()->with('success', 'You are already subscribed.');
+        }
+
+        $subscriber->fill([
+            'subscribed_at' => now(),
+            'unsubscribed_at' => null,
+        ])->save();
+
+        Mail::to($subscriber->email)->send(new NewsletterMail($subscriber, 'Welcome!', 'Thanks for subscribing.'));
 
         return back()->with('success', 'You have been subscribed successfully!');
     }
 
-    // 2. Unsubscribe (Signed Route)
+    public function showUnsubscribe(Request $request, Subscriber $subscriber)
+    {
+        return view('newsletter::confirm-unsubscribe', [
+            'subscriber' => $subscriber,
+            'actionUrl' => $request->fullUrl(),
+        ]);
+    }
+
     public function unsubscribe(Request $request, Subscriber $subscriber)
     {
-        // Verify the signature
-        if (! $request->hasValidSignature()) {
-            abort(403, 'Invalid or expired unsubscribe link.');
-        }
-
         $subscriber->update([
-            'is_subscribed' => false,
             'unsubscribed_at' => now(),
         ]);
 

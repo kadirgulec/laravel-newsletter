@@ -24,8 +24,13 @@ class Subscriber extends Model
         'unsubscribe_reason',
     ];
 
+    protected $casts = [
+        'subscribed_at' => 'datetime',
+        'unsubscribed_at' => 'datetime',
+    ];
+
     public function scopeActive($query)
     {
-        return $query->whereNotNull('subscribed_at')->whereNull ('unsubscribed_at');
+        return $query->whereNotNull('subscribed_at')->whereNull('unsubscribed_at');
     }
 }

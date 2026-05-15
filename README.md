@@ -73,10 +73,14 @@ You can send a newsletter from any Controller, Artisan Command, or Job.
 > **Tip:** For large lists, it is highly recommended to queue these emails using Laravel Jobs to prevent your page from timing out.
 
 ### 3. Unsubscribing
-This process is automated.
-1. Every email sent via `NewsletterMail` includes a **Footer Link** and a **Hidden Header** (`List-Unsubscribe`).
-2. The link points to a **Signed Route** (`/newsletter/unsubscribe/{id}?signature=...`).
-3. If the user clicks it, their status in the database is updated to `is_subscribed = false` and they are shown a success message.
+This process is automated and prefetch-safe.
+1. Every email sent via `NewsletterMail` includes a **Footer Link** and the **`List-Unsubscribe`** + **`List-Unsubscribe-Post: List-Unsubscribe=One-Click`** headers (RFC 8058).
+2. The signed URL (`/newsletter/unsubscribe/{id}?signature=...`) responds to both:
+   - **`GET`** — renders a confirmation page with a button. Mailbox link-scanners and antivirus prefetchers that hit the URL do **not** unsubscribe the user.
+   - **`POST`** — performs the unsubscribe. Used by the confirmation form and by mailbox providers (Gmail, Outlook, …) when the user clicks their built-in "Unsubscribe" UI.
+3. On successful unsubscribe, `unsubscribed_at` is set and the user sees the `unsubscribe-success` view.
+
+If the same email later resubscribes through the form, `unsubscribed_at` is cleared and `subscribed_at` is refreshed.
 
 ---
 
@@ -88,9 +92,14 @@ The package creates a table named `newsletter_subscribers`.
 | :--- | :--- | :--- |
 | `id` | BigInt | Primary Key |
 | `email` | String | Unique email address |
-| `is_subscribed` | Boolean | `true` = Active, `false` = Unsubscribed |
-| `unsubscribed_at` | Timestamp | Nullable. Date when user unsubscribed |
-| `created_at` | Timestamp | Subscription date |
+| `subscribed_at` | Timestamp | Nullable. Set when the user subscribes; cleared/unused implies they were never confirmed |
+| `unsubscribed_at` | Timestamp | Nullable. Set when the user unsubscribes; `null` means still active |
+| `unsubscribe_reason` | Text | Nullable. Optional free-text reason captured at unsubscribe time |
+| `created_at` | Timestamp | Row insert date |
+| `updated_at` | Timestamp | Row update date |
+| `deleted_at` | Timestamp | Nullable. Reserved for soft deletes |
+
+A subscriber is considered active when `subscribed_at IS NOT NULL` and `unsubscribed_at IS NULL`. Use the `Subscriber::active()` scope rather than checking the columns directly.
 
 The package also creates a table named `newsletter_campaigns`.
 
@@ -113,15 +122,16 @@ You can publish the email layout and the "Unsubscribe Success" page to your main
 ```
 This will generate:
 1. `resources/views/vendor/newsletter/email/standard.blade.php` (The Email Layout)
-2. `resources/views/vendor/newsletter/unsubscribe-success.blade.php` (The "You have unsubscribed" page)
+2. `resources/views/vendor/newsletter/confirm-unsubscribe.blade.php` (The "Confirm unsubscribe" page)
+3. `resources/views/vendor/newsletter/unsubscribe-success.blade.php` (The "You have unsubscribed" page)
 
 ### Extending the Model
 If you need to add relationships (e.g., linking a subscriber to a `User`), you can extend the model or use the provided one:
 ```PHP
     use KadirGulec\Newsletter\Models\Subscriber;
 
-    // Check if a specific email is subscribed
-    $isSubscribed = Subscriber::where('email', 'john@doe.com')->first()?->is_subscribed;
+    // Check if a specific email is currently subscribed
+    $isSubscribed = Subscriber::active()->where('email', 'john@doe.com')->exists();
 ```
 ---
 
